@@ -23,9 +23,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     let ballGlowWidth: CGFloat = 5.0
     
     
-    override func didMoveToView(view: SKView) {
-        physicsBody = SKPhysicsBody(edgeLoopFromRect: frame)
-        backgroundColor = SKColor.whiteColor()
+    override func didMove(to view: SKView) {
+        physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
+        backgroundColor = SKColor.white
         
         makeCircles()
     }
@@ -33,13 +33,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     func makeCircles(){
         //Main circle
         let circleShape = SKShapeNode(circleOfRadius: radius)
-        circleShape.fillColor = SKColor.clearColor()
-        circleShape.strokeColor = SKColor.clearColor()
+        circleShape.fillColor = SKColor.clear
+        circleShape.strokeColor = SKColor.clear
         circleShape.position = CGPoint(x: size.width / 2, y: size.height / 2)
         
         
         let circlePhysics = SKPhysicsBody(circleOfRadius: radius)
-        circlePhysics.dynamic = dynamic
+        circlePhysics.isDynamic = dynamic
         circlePhysics.mass = massOfCenterCircle
         circlePhysics.affectedByGravity = false
         
@@ -48,45 +48,44 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         circles.append(circleShape)
         
         //Outer circle
-        for var i = 0; i < numOfCircles; ++i{
+        //for var i = 0; i < numOfCircles; ++i{
+        for (i, _) in circles.enumerated() {
             let massOfOuterCircle = massOfOuterCircles / CGFloat(numOfCircles)
             
-            let angle = (M_PI * 2 / Double(numOfCircles)) * Double(i)
+            let angle = (.pi * 2 / Double(numOfCircles)) * Double(i)
             let dy = CGFloat(sin(angle)) * radius
             let dx = CGFloat(cos(angle)) * radius
             
             let point = SKShapeNode(circleOfRadius: outerCircleRadius)
             point.position = CGPoint(x: circles.first!.position.x + dx * 2, y: circles.first!.position.y + dy * 2)
-            point.fillColor = SKColor.clearColor()
-            point.strokeColor = SKColor.clearColor()
+            point.fillColor = SKColor.clear
+            point.strokeColor = SKColor.clear
             point.physicsBody = SKPhysicsBody(circleOfRadius: point.frame.size.width / 2)
             point.physicsBody!.mass = massOfOuterCircle
-            point.physicsBody!.dynamic = dynamic
+            point.physicsBody!.isDynamic = dynamic
             addChild(point)
             circles.append(point)
             
-            
             makeJointBetween(point: circles.first!, point2: point)
-            
-            
         }
-        
-        for var i = 1; i < circles.count; ++i{
-            if i == 1{
+        for (i, _) in circles.enumerated() {
+        //for var i = 1; i < circles.count; ++i{
+            if i == 0 {
+                continue
+            } else if i == 1{
                 makeJointBetween(point: circles.last!, point2: circles[1])
                 
-            }else{
+            } else{
                 makeJointBetween(point: circles[i], point2: circles[i - 1])
-                
             }
         }
     }
     
-    func makeJointBetween(point point: SKShapeNode, point2: SKShapeNode){
-        let joint = SKPhysicsJointSpring.jointWithBodyA(point.physicsBody!, bodyB: point2.physicsBody!, anchorA: point.position, anchorB: point2.position)
+    func makeJointBetween(point: SKShapeNode, point2: SKShapeNode){
+        let joint = SKPhysicsJointSpring.joint(withBodyA: point.physicsBody!, bodyB: point2.physicsBody!, anchorA: point.position, anchorB: point2.position)
         joint.damping = jointDamping
         joint.frequency = jointFrequency
-        physicsWorld.addJoint(joint)
+        physicsWorld.add(joint)
         
     }
     
@@ -100,30 +99,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         var point = circles.first!
         
         let path = UIBezierPath()
-        path.moveToPoint(point.position)
+        path.move(to: point.position)
         
-        for var i = 1; i < circles.count; ++i{
-            
+        //for var i = 1; i < circles.count; ++i{
+        for (i, _) in circles.enumerated() {
             point = circles[i]
-            path.addLineToPoint(point.position)
+            path.addLine(to: point.position)
             
-            if i == circles.count - 1{
-                path.addLineToPoint(circles[1].position)
+            if i == circles.count - 1 {
+                path.addLine(to: circles[1].position)
             }
         }
         
-        ballLine.path = path.CGPath
+        ballLine.path = path.cgPath
         ballLine.glowWidth = ballGlowWidth
-        ballLine.fillColor = SKColor.orangeColor()
-        ballLine.strokeColor = SKColor.orangeColor()
+        ballLine.fillColor = SKColor.orange
+        ballLine.strokeColor = SKColor.orange
         addChild(ballLine)
     }
     
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        super.touchesBegan(touches, withEvent: event)
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
         
         if let touch = touches.first{
-            let location = touch.locationInNode(self)
+            let location = touch.location(in: self)
             
             let circle = circles.first!
             let dx = location.x - circle.position.x
@@ -139,12 +138,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             //                circles[i].physicsBody!.applyForce(impulse)
             //
             //            }
-            
-            
         }
     }
     
-    override func update(currentTime: CFTimeInterval) {
+    override func update(_ currentTime: CFTimeInterval) {
         drawBallLine()
         
     }
