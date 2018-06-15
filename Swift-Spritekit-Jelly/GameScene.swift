@@ -15,8 +15,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     let radius: CGFloat = 30
     let outerCircleRadius: CGFloat = 15
     let dynamic = true
-    //let jointDamping: CGFloat = 1.0
-    let jointDamping: CGFloat = 0.5
+    let jointDamping: CGFloat = 1.0
     let jointFrequency: CGFloat = 9.0
     let numOfCircles = 22
     let massOfCenterCircle: CGFloat = 4.0
